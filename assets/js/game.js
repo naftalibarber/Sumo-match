@@ -191,13 +191,14 @@ class Fighter {
     this.hitFlash=0; this.trailPos=[];
     // אישיות ייחודית לכל בוט — נקבעת פעם אחת
     this.aiPersonality = isPlayer ? null : {
-      aggression:  0.4 + Math.random()*1.2,  // 0.4–1.6: כמה אגרסיבי
-      edgeBias:    0.5 + Math.random()*1.5,  // 0.5–2.0: כמה מעדיף מטרות קרובות לקצה
-      targetSticky: Math.random(),            // 0–1: כמה "נדבק" למטרה אחת
-      powerupHunger: Math.random(),           // 0–1: כמה רוצה powerups
-      playerAvoid:  Math.random()*0.5,        // 0–0.5: כמה נמנע מלתקוף שחקן
-      currentTarget: null,                    // מטרה נוכחית (sticky)
-      targetTimer: 0,                         // כמה frames נשאר עם מטרה
+      aggression: 0.75 + Math.random()*0.5,
+      bravery: 0.65 + Math.random()*0.35,
+      prediction: 0.65 + Math.random()*0.35,
+      edgeBias: 0.9 + Math.random()*0.8,
+      powerupHunger: 0.55 + Math.random()*0.45,
+      reaction: 0.9 + Math.random()*0.18,
+      currentTarget: null,
+      targetTimer: 0,
     };
   }
   getColor(){ if(this.isPlayer)return COLORS.player; let n=COLORS.botColors.length; return COLORS.botColors[((this.colorIdx%n)+n)%n]; }
@@ -220,155 +221,129 @@ class Fighter {
     const dirTo=(v)=>v.sub(this.pos).norm();
     const myDist=this.pos.sub(center).mag();
     const alive=fighters.filter(f=>f!==this&&f.alive);
-
-    // ── 1. פאניקה: קרוב לקצה → ברח למרכז ──
-    const edgeDanger = myDist > ARENA_R - 55;
-    const edgeCritical = myDist > ARENA_R - 30;
-
-    // ── 2. מצא את הכוח-על הקרוב ביותר (powerupBoxes גלובלי) ──
-    let nearestBox=null, nearestBoxDist=Infinity;
-    for(let box of powerupBoxes){
-      if(!box.alive)continue;
-      let d=this.pos.sub(box.pos).mag();
-      if(d<nearestBoxDist){nearestBoxDist=d;nearestBox=box;}
-    }
-
-    // ── 3. בחר מטרה לתקיפה עם אישיות ייחודית ──
-    let attackTarget=null;
     const pers=this.aiPersonality;
-    if(pers){
-      // sticky target: שמור על אותה מטרה כמה שניות
-      pers.targetTimer--;
-      if(pers.currentTarget && pers.targetTimer>0 && alive.some(f=>f===pers.currentTarget)){
-        attackTarget=pers.currentTarget;
-      } else {
-        // בחר מטרה חדשה לפי אישיות
-        let bestScore=-Infinity;
-        for(let f of alive){
-          let d=distTo(f);
-          let fEdgeDist=ARENA_R - f.pos.sub(center).mag();
-          let score=0;
-          // קרוב לקצה — לפי edgeBias
-          score += (200-fEdgeDist) * pers.edgeBias;
-          // קרוב אלינו — לפי aggression
-          score += (300-d) * pers.aggression * 0.5;
-          // הימנע מלתקוף שחקן (playerAvoid)
-          if(f.isPlayer) score -= pers.playerAvoid * 120;
-          // potato: רדוף אחרי הפצצה
-          if(gameMode==='potato' && f.hasBomb && !this.hasBomb) score += 300;
-          if(gameMode==='potato' && this.hasBomb) score += 100;
-          // רנדומיות קטנה — מונעת בחירה זהה
-          score += (Math.random()-0.5)*40;
-          if(score>bestScore){bestScore=score;attackTarget=f;}
+    if(!pers||alive.length===0){this.acc=dirTo(center).mul(BASE_SPEED);return;}
+
+    // חיזוי סכנת יציאה מהזירה כולל מהירות החוצה ומרחק עצירה.
+    const radial=myDist>0?this.pos.sub(center).norm():new Vec2(0,0);
+    const outwardSpeed=this.vel.dot(radial);
+    const edgeRoom=ARENA_R-this.r-myDist;
+    const stoppingRisk=Math.max(0,outwardSpeed)*8;
+    const edgeCritical=edgeRoom<24+stoppingRisk;
+    const edgeDanger=edgeRoom<62+stoppingRisk;
+
+    // הפרדה מבוטים אחרים מונעת התקבצות והתנגשויות חסרות מטרה.
+    let separation=new Vec2(0,0);
+    let threatAvoidance=new Vec2(0,0);
+    for(const other of alive){
+      const diff=this.pos.sub(other.pos),d=diff.mag();
+      if(d>0&&d<PLAYER_R*3.2) separation=separation.add(diff.norm().mul((PLAYER_R*3.2-d)/(PLAYER_R*3.2)));
+      if(d>0&&d<PLAYER_R*5&&other.powerups['strength']&&!this.powerups['shield']){
+        threatAvoidance=threatAvoidance.add(diff.norm().mul((1-pers.bravery)*2.5+1.2));
+      }
+    }
+
+    // בחירת כוח לפי תועלת אמיתית למצב הנוכחי, לא רק לפי מרחק.
+    const powerupValue={speed:1.0,strength:1.2,shield:1.15,blast:1.05,freeze:1.1,repulsor:1.0};
+    let bestBox=null,bestBoxScore=-Infinity;
+    for(const box of powerupBoxes){
+      if(!box.alive)continue;
+      const d=this.pos.sub(box.pos).mag();
+      let value=powerupValue[box.type]||0.8;
+      if(box.type==='shield'&&edgeDanger)value+=0.8;
+      if(box.type==='speed'&&(hillMode||this.hasBomb))value+=0.45;
+      if(box.type==='strength'&&alive.some(f=>ARENA_R-f.pos.sub(center).mag()<70))value+=0.5;
+      if(this.powerups[box.type])value-=0.8;
+      const score=value*pers.powerupHunger*150-d;
+      if(score>bestBoxScore){bestBoxScore=score;bestBox=box;}
+    }
+
+    // החלפת מטרה מהירה כשהמצב משתנה, אך יציבות מספקת כדי להשלים מהלך.
+    let attackTarget=null;
+    pers.targetTimer--;
+    const targetStillUseful=pers.currentTarget&&pers.currentTarget.alive&&
+      !(gameMode==='potato'&&!this.hasBomb&&pers.currentTarget.hasBomb);
+    if(targetStillUseful&&pers.targetTimer>0){
+      attackTarget=pers.currentTarget;
+    }else{
+      let bestScore=-Infinity;
+      for(const target of alive){
+        const distance=distTo(target);
+        const targetEdgeRoom=ARENA_R-target.r-target.pos.sub(center).mag();
+        let score=(280-distance)*0.55+(100-targetEdgeRoom)*pers.edgeBias;
+        if(target.powerups['shield'])score-=110;
+        if(target.powerups['strength']&&!this.powerups['shield'])score-=45;
+        if(this.powerups['strength'])score+=70;
+        if(target.isPlayer)score+=18; // השחקן אינו מקבל חסינות מלאכותית.
+        if(gameMode==='potato'){
+          if(this.hasBomb)score+=(260-distance)*1.8;
+          else if(target.hasBomb)score-=500;
         }
-        // sticky: זמן נדבקות לפי targetSticky (30–120 frames)
-        pers.currentTarget=attackTarget;
-        pers.targetTimer=Math.floor(30 + pers.targetSticky*90);
+        if(score>bestScore){bestScore=score;attackTarget=target;}
       }
-    } else {
-      // fallback אם אין אישיות
-      let best=Infinity;
-      for(let f of alive){ let d=distTo(f); if(d<best){best=d;attackTarget=f;} }
+      pers.currentTarget=attackTarget;
+      pers.targetTimer=Math.floor(22+Math.random()*28);
     }
 
-    // ── 4. בחר איזה מישהו לברוח ממנו (מי חזק/קרוב) ──
-    let fleeFrom=null;
-    for(let f of alive){
-      let d=distTo(f);
-      if(d<PLAYER_R*3.5){
-        // בוט עם strength קרוב — ברח!
-        if(f.powerups['strength'] && !this.powerups['shield']){fleeFrom=f;break;}
-      }
-    }
-
-    // ── 5. BLAST: השתמש רק כשמרובד יריבים קרובים ──
+    // השתמש בגל הדף רק כשיש סיכוי להדיח יריב או כשאנחנו מוקפים.
     if(this.powerups['blast']){
-      let closeEnemies=alive.filter(f=>distTo(f)<ARENA_R*0.55);
-      if(closeEnemies.length>=1){
-        for(let o of alive){
-          if(o.powerups['shield'])continue;
-          o.vel=o.vel.add(dirTo(o.pos).mul(8)); // push away
+      const usefulTargets=alive.filter(f=>!f.powerups['shield']&&distTo(f)<125);
+      const nearEdge=usefulTargets.some(f=>ARENA_R-f.pos.sub(center).mag()<75);
+      if(nearEdge||usefulTargets.length>=2||(edgeCritical&&usefulTargets.length>=1)){
+        for(const other of usefulTargets){
+          other.vel=other.vel.add(other.pos.sub(this.pos).norm().mul(8));
         }
-        delete this.powerups['blast']; delete this.powerupTimers['blast'];
+        delete this.powerups['blast'];delete this.powerupTimers['blast'];
         this._blastTriggered={x:this.pos.x,y:this.pos.y};
       }
     }
 
-    // ── 6. עדכן wander ──
     this.aiWanderTimer--;
     if(this.aiWanderTimer<=0){
       this.aiWander=new Vec2(Math.random()-0.5,Math.random()-0.5).norm();
-      this.aiWanderTimer=50+Math.random()*80;
+      this.aiWanderTimer=70+Math.random()*70;
     }
 
-    // ── 7. בנה וקטור תנועה ──
     let dir=new Vec2(0,0);
-
-    // עדיפות 1 (קריטי): ברח מהקצה
     if(edgeCritical){
-      dir=dir.add(dirTo(center).mul(4.0));
-    } else if(edgeDanger){
-      dir=dir.add(dirTo(center).mul(2.0));
-    }
+      // בלימה הפוכה למהירות החוצה ואז חזרה למרכז.
+      dir=dir.add(dirTo(center).mul(5.5)).add(this.vel.mul(-1.4));
+    }else{
+      if(edgeDanger)dir=dir.add(dirTo(center).mul(2.6));
 
-    // עדיפות 2: ברח מאויב חזק
-    if(fleeFrom && !edgeDanger){
-      let fleeDir=this.pos.sub(fleeFrom.pos).norm();
-      dir=dir.add(fleeDir.mul(1.5));
-    }
-
-    // עדיפות 3: אסוף כוח-על קרוב (אם שווה)
-    const wantPowerup = !edgeDanger && nearestBox && nearestBoxDist < 120
-      && !this.powerups['speed'] && !this.powerups['strength']; // לא אם כבר יש
-    if(wantPowerup){
-      dir=dir.add(dirTo(nearestBox.pos).mul(1.0));
-    }
-
-    // עדיפות 4: תקיפה / King of Hill
-    if(hillMode && !edgeDanger){
-      let myHillDist = this.pos.sub(center).mag();
-      let onHill = myHillDist < HILL_R;
-      let nearHill = myHillDist < HILL_R * 1.6;
-
-      // כוח-על בדרך לגבעה — אסוף אם קרוב וכדאי
-      const hillWantPowerup = !onHill && nearestBox && nearestBoxDist < 90
-        && !this.powerups['speed'] && !this.powerups['strength'];
-
-      if(onHill){
-        // על הגבעה — עוגן למרכז
-        dir=dir.add(dirTo(center).mul(1.8));
-        // דחוף פולש שנמצא על הגבעה
-        let hillInvader=alive.filter(f=>f.pos.sub(center).mag()<HILL_R)
-          .sort((a,b)=>distTo(a)-distTo(b))[0];
-        if(hillInvader) dir=dir.add(dirTo(hillInvader.pos).mul(1.0));
-        // אם יש כוח-על ממש קרוב (בתוך הגבעה כמעט) — אסוף
-        if(nearestBox && nearestBoxDist < 55) dir=dir.add(dirTo(nearestBox.pos).mul(0.8));
-      } else if(hillWantPowerup){
-        // כוח-על בדרך — סטה לאסוף אותו ואז המשך לגבעה
-        dir=dir.add(dirTo(nearestBox.pos).mul(1.4));
+      // נושא הפצצה רודף אחרי היעד; האחרים בורחים ממנו ושומרים מרחק.
+      const bombCarrier=alive.find(f=>f.hasBomb);
+      if(gameMode==='potato'&&!this.hasBomb&&bombCarrier){
+        const away=this.pos.sub(bombCarrier.pos).norm();
+        dir=dir.add(away.mul(distTo(bombCarrier)<150?3.8:1.7));
         dir=dir.add(dirTo(center).mul(0.8));
-      } else if(nearHill){
-        // קרוב לגבעה — כנס פנימה
-        dir=dir.add(dirTo(center).mul(2.0));
-        if(attackTarget && distTo(attackTarget)<HILL_R*2)
-          dir=dir.add(dirTo(attackTarget.pos).mul(0.6));
-      } else {
-        // רחוק — רוץ לגבעה, אבל סטה לכוח-על בדרך
-        if(nearestBox && nearestBoxDist < 70 && !this.powerups['speed'] && !this.powerups['strength'])
-          dir=dir.add(dirTo(nearestBox.pos).mul(1.2));
-        dir=dir.add(dirTo(center).mul(2.2));
+      }else if(hillMode){
+        const onHill=myDist<HILL_R*0.82;
+        const invader=alive.filter(f=>f.pos.sub(center).mag()<HILL_R).sort((a,b)=>distTo(a)-distTo(b))[0];
+        dir=dir.add(dirTo(center).mul(onHill?1.7:3.0));
+        if(onHill&&invader)dir=dir.add(dirTo(invader.pos.add(invader.vel.mul(5))).mul(1.25));
+      }else if(attackTarget){
+        const lead=6+pers.prediction*10;
+        let aim=attackTarget.pos.add(attackTarget.vel.mul(lead));
+        // לפני הסתערות על יריב בקצה, התמקם בצד הפנימי כדי לדחוף אותו החוצה.
+        const targetRadial=attackTarget.pos.sub(center).norm();
+        const behind=attackTarget.pos.sub(targetRadial.mul(PLAYER_R*2.2));
+        if(ARENA_R-attackTarget.pos.sub(center).mag()<90&&distTo(attackTarget)>PLAYER_R*2.6)aim=behind;
+        dir=dir.add(dirTo(aim).mul(this.hasBomb?3.4:1.8*pers.aggression));
       }
-    } else if(attackTarget && !edgeDanger){
-      let attackStrength = wantPowerup ? 0.6 : 1.2;
-      dir=dir.add(dirTo(attackTarget.pos).mul(attackStrength));
+
+      if(bestBox&&bestBoxScore>0&&!this.hasBomb&&!edgeDanger){
+        dir=dir.add(dirTo(bestBox.pos).mul(hillMode?0.75:1.25));
+      }
+      dir=dir.add(separation.mul(0.9));
+      dir=dir.add(threatAvoidance);
     }
 
-    // ווריאציה קטנה — כל בוט קצת שונה
-    dir=dir.add(this.aiWander.mul(0.12));
-
-    if(dir.mag()<0.001) dir=this.aiWander;
-    dir=dir.norm();
-    this.acc=dir.mul(this.powerups['speed']?BASE_SPEED*2:BASE_SPEED);
+    dir=dir.add(this.aiWander.mul(edgeDanger?0.02:0.06));
+    if(dir.mag()<0.001)dir=dirTo(center);
+    const speedBoost=this.powerups['speed']?2:1;
+    const tacticalSpeed=edgeCritical?1.12:(this.hasBomb?1.08:pers.reaction);
+    this.acc=dir.norm().mul(BASE_SPEED*speedBoost*tacticalSpeed);
   }
   update(dt){
     if(!this.alive)return;
@@ -1255,8 +1230,9 @@ new p5(function(p){
         if(!box.alive)continue;
         if(f.pos.sub(box.pos).mag()<f.r+box.size){
           box.alive=false; f.applyPowerup(box.type); addParticles(box.pos.x,box.pos.y,[255,220,0],10);
-          if(box.type==='blast'){ for(let o of fighters){if(o===f||!o.alive||o.powerups['shield'])continue; o.vel=o.vel.add(o.pos.sub(f.pos).norm().mul(8));} addParticles(f.pos.x,f.pos.y,[255,80,200],20); delete f.powerups['blast']; delete f.powerupTimers['blast']; } // blast הוא one-shot
-          if(box.type==='freeze'){ for(let o of fighters){if(o===f||!o.alive||o.powerups['shield'])continue; o.frozen=true; o.frozenTimer=FREEZE_DURATION;} addParticles(f.pos.x,f.pos.y,[100,220,255],20); }
+          if(box.type==='blast'&&f.isPlayer){ for(let o of fighters){if(o===f||!o.alive||o.powerups['shield'])continue; o.vel=o.vel.add(o.pos.sub(f.pos).norm().mul(8));} addParticles(f.pos.x,f.pos.y,[255,80,200],20); delete f.powerups['blast']; delete f.powerupTimers['blast']; }
+          // בוט שומר Blast לרגע טקטי; לשחקן הוא נשאר כוח מיידי ללא כפתור נוסף.
+          if(box.type==='freeze'){ for(let o of fighters){if(o===f||!o.alive||o.powerups['shield'])continue; o.frozen=true; o.frozenTimer=FREEZE_DURATION;} addParticles(f.pos.x,f.pos.y,[100,220,255],20); delete f.powerups['freeze']; delete f.powerupTimers['freeze']; }
         }
       }
     }
@@ -2125,4 +2101,3 @@ new p5(function(p){
     showMessage(T('gameStart'),1500);
   }
 });
-
