@@ -1,205 +1,3 @@
-<!DOCTYPE html>
-<html lang="he">
-<head>
-  <meta charset="UTF-8">
-  <link rel="apple-touch-icon" href="data:image/png;base64,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">
-  <link rel="manifest" href="manifest.json">
-  <title>קרב סומו</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #0a0a0f; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; overflow:hidden; }
-    canvas { display:block; }
-    #lang-btn {
-      position: fixed;
-      top: 12px; left: 12px;
-      z-index: 999;
-      background: rgba(255,220,80,0.15);
-      border: 2px solid rgba(255,220,80,0.55);
-      color: #ffe050;
-      font-size: 13px;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-      padding: 7px 16px;
-      border-radius: 22px;
-      cursor: pointer;
-      letter-spacing: 1px;
-      transition: background 0.2s, border-color 0.2s, transform 0.1s;
-      backdrop-filter: blur(4px);
-      user-select: none;
-    }
-    #lang-btn:hover { background: rgba(255,220,80,0.32); border-color: rgba(255,220,80,1); transform: scale(1.06); }
-    #lang-btn:active { transform: scale(0.97); }
-    #fullscreen-btn {
-      position: fixed;
-      top: 12px; right: 12px;
-      z-index: 999;
-      background: rgba(255,220,80,0.15);
-      border: 2px solid rgba(255,220,80,0.55);
-      color: #ffe050;
-      font-size: 16px;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-      padding: 7px 14px;
-      border-radius: 22px;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s, transform 0.1s;
-      backdrop-filter: blur(4px);
-      user-select: none;
-    }
-    #fullscreen-btn:hover { background: rgba(255,220,80,0.32); border-color: rgba(255,220,80,1); transform: scale(1.06); }
-    #fullscreen-btn:active { transform: scale(0.97); }
-    #profile-btn {
-      position: fixed;
-      top: 12px; left: 105px;
-      z-index: 999;
-      background: rgba(100,180,255,0.15);
-      border: 2px solid rgba(100,180,255,0.55);
-      color: #80c8ff;
-      font-size: 13px;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-      padding: 7px 16px;
-      border-radius: 22px;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s, transform 0.1s;
-      backdrop-filter: blur(4px);
-      user-select: none;
-    }
-    #profile-btn:hover { background: rgba(100,180,255,0.32); border-color: rgba(100,180,255,1); transform: scale(1.06); }
-    #profile-btn:active { transform: scale(0.97); }
-    #music-btn {
-      position: fixed;
-      top: 12px; right: 72px;
-      z-index: 999;
-      background: rgba(255,220,80,0.15);
-      border: 2px solid rgba(255,220,80,0.55);
-      color: #ffe050;
-      font-size: 15px;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-      padding: 7px 14px;
-      border-radius: 22px;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s, transform 0.1s;
-      backdrop-filter: blur(4px);
-      user-select: none;
-    }
-    #music-btn:hover { background: rgba(255,220,80,0.32); border-color: rgba(255,220,80,1); transform: scale(1.06); }
-    #music-btn:active { transform: scale(0.97); }
-    #profile-panel {
-      display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-      z-index:900; background:rgba(10,10,20,0.97); border:2px solid rgba(255,200,50,0.5);
-      border-radius:18px; padding:28px 32px; width:580px; max-width:95vw;
-      font-family:Arial,sans-serif; color:#fff; text-align:center;
-    }
-    #profile-panel h2 { color:#ffe050; font-size:22px; margin:0 0 6px; }
-    #profile-panel .email { color:#80ffaa; font-size:12px; margin-bottom:14px; }
-    #profile-panel input[type=text] {
-      width:280px; padding:9px 14px; border-radius:10px; border:2px solid rgba(255,220,80,0.6);
-      background:rgba(20,20,40,0.9); color:#fff; font-size:18px; text-align:center; outline:none;
-    }
-    #profile-panel .stats-table { width:100%; border-collapse:collapse; margin:14px 0; font-size:13px; }
-    #profile-panel .stats-table td { padding:6px 10px; }
-    #profile-panel .stats-table tr:nth-child(odd) { background:rgba(255,255,255,0.04); }
-    #profile-panel .btn {
-      padding:8px 22px; border-radius:12px; border:none; cursor:pointer;
-      font-size:14px; font-weight:bold; margin:4px; transition:all 0.15s;
-    }
-    #profile-panel .btn-gold { background:rgba(255,200,60,0.2); border:2px solid rgba(255,200,60,0.6); color:#ffe050; }
-    #profile-panel .btn-gold:hover { background:rgba(255,200,60,0.4); }
-    #profile-panel .btn-blue { background:rgba(60,150,255,0.2); border:2px solid rgba(60,150,255,0.6); color:#80c8ff; }
-    #profile-panel .btn-blue:hover { background:rgba(60,150,255,0.4); }
-    #profile-panel .btn-red { background:rgba(255,80,80,0.15); border:2px solid rgba(255,80,80,0.4); color:#ffaaaa; }
-    #profile-panel .btn-red:hover { background:rgba(255,80,80,0.3); }
-    #profile-panel .btn-gray { background:rgba(120,120,150,0.2); border:2px solid rgba(120,120,150,0.4); color:#ccc; }
-    #profile-panel .btn-gray:hover { background:rgba(120,120,150,0.35); }
-    #profile-panel .avatar-wrap { position:relative; display:inline-block; margin-bottom:8px; cursor:pointer; }
-    #profile-panel .avatar-wrap img, #profile-panel .avatar-wrap .av-placeholder {
-      width:72px; height:72px; border-radius:50%; border:2px solid rgba(255,200,50,0.7); object-fit:cover; display:block;
-    }
-    #profile-panel .avatar-wrap .av-placeholder { background:#1a2040; line-height:72px; font-size:32px; text-align:center; }
-    #profile-panel .avatar-wrap .av-overlay {
-      position:absolute; top:0; left:0; width:72px; height:72px; border-radius:50%;
-      background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center;
-      font-size:11px; color:#fff; opacity:0; transition:opacity 0.2s;
-    }
-    #profile-panel .avatar-wrap:hover .av-overlay { opacity:1; }
-    #profile-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:899; }
-    #auth-panel {
-      display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-      z-index:1000; background:rgba(10,10,25,0.98); border:2px solid rgba(100,160,255,0.5);
-      border-radius:18px; padding:30px 36px; width:380px; max-width:95vw;
-      font-family:Arial,sans-serif; color:#fff; text-align:center;
-    }
-    #auth-panel h2 { color:#80c8ff; font-size:20px; margin:0 0 18px; }
-    #auth-panel input {
-      width:100%; padding:10px 14px; border-radius:10px; margin:6px 0;
-      border:2px solid rgba(100,160,255,0.4); background:rgba(20,20,45,0.95);
-      color:#fff; font-size:15px; outline:none; box-sizing:border-box;
-    }
-    #auth-panel input:focus { border-color:rgba(100,180,255,0.9); }
-    #auth-panel .auth-error { color:#ff8080; font-size:12px; min-height:18px; margin:4px 0; }
-    #auth-panel .auth-tabs { display:flex; gap:8px; margin-bottom:18px; }
-    #auth-panel .auth-tab {
-      flex:1; padding:8px; border-radius:10px; border:2px solid rgba(100,160,255,0.3);
-      background:transparent; color:#aac8ff; cursor:pointer; font-size:14px; font-weight:bold;
-    }
-    #auth-panel .auth-tab.active { background:rgba(100,160,255,0.2); border-color:rgba(100,180,255,0.8); color:#fff; }
-    #auth-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999; }
-  </style>
-</head>
-<body oncontextmenu="return false">
-<input type="file" id="avatar-input" accept="image/*" style="display:none">
-<div id="auth-overlay"></div>
-<div id="auth-panel">
-  <div class="auth-tabs">
-    <button class="auth-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">🔑 כניסה</button>
-    <button class="auth-tab" id="auth-tab-register" onclick="switchAuthTab('register')">✨ הרשמה</button>
-  </div>
-  <h2 id="auth-title">כניסה עם אימייל</h2>
-  <div id="auth-name-row" style="display:none">
-    <input type="text" id="auth-name" placeholder="שם תצוגה..." maxlength="20">
-  </div>
-  <input type="email" id="auth-email" placeholder="אימייל...">
-  <input type="password" id="auth-password" placeholder="סיסמה (6+ תווים)..." minlength="6">
-  <div class="auth-error" id="auth-error"></div>
-  <button class="btn btn-blue" id="auth-submit-btn" style="width:100%;margin:8px 0;padding:11px">🔑 כניסה</button>
-  <button class="btn btn-gray" id="auth-cancel-btn" style="width:100%;padding:8px">ביטול</button>
-</div>
-<div id="profile-overlay"></div>
-<div id="profile-panel">
-  <div id="pp-stats-view">
-    <div class="avatar-wrap" id="pp-avatar-wrap">
-      <div class="av-placeholder" id="pp-avatar-placeholder">👤</div>
-      <img id="pp-avatar-img" style="display:none">
-      <div class="av-overlay">שנה</div>
-    </div>
-    <h2 id="pp-name">שחקן</h2>
-    <div class="email" id="pp-email" style="display:none"></div>
-    <table class="stats-table" id="pp-stats"></table>
-    <div style="margin-top:12px">
-      <button class="btn btn-gold" id="pp-edit-btn">✏️ ערוך שם</button>
-      <button class="btn btn-blue" id="pp-google-btn">🔵 התחבר עם Google</button>
-      <button class="btn btn-gray" id="pp-close-btn">🚪 סגור</button>
-    </div>
-  </div>
-  <div id="pp-edit-view" style="display:none">
-    <h2>✏️ ערוך שם</h2>
-    <div style="margin:18px 0">
-      <input type="text" id="pp-name-input" maxlength="16" placeholder="שם...">
-    </div>
-    <button class="btn btn-gold" id="pp-save-btn">💾 שמור</button>
-    <button class="btn btn-gray" id="pp-cancel-btn">ביטול</button>
-  </div>
-</div>
-<button id="lang-btn">🌐 EN</button>
-<button id="profile-btn">👤 פרופיל</button>
-<button id="music-btn">🔇</button>
-<button id="fullscreen-btn">⛶</button>
-<script>
 // ============================================================
 // זירת סומו - משחק קרב מלא | Sumo Battle Arena - Full Game
 // תמיכה בעברית ואנגלית | Hebrew & English support
@@ -735,9 +533,12 @@ const firebaseConfig = {
   messagingSenderId: "728804332870",
   appId: "1:728804332870:web:a12d56f3e02d47d880c147"
 };
-firebase.initializeApp(firebaseConfig);
-const fbAuth = firebase.auth();
-const googleProvider = new firebase.auth.GoogleAuthProvider();
+const firebaseAvailable = typeof firebase !== 'undefined' && typeof firebase.auth === 'function';
+let fbAuth = null;
+if (firebaseAvailable) {
+  firebase.initializeApp(firebaseConfig);
+  fbAuth = firebase.auth();
+}
 
 // ── פרופיל מקומי (localStorage) ──
 const PROFILE_KEY='sumo_profile';
@@ -745,9 +546,16 @@ function loadProfile(){ try{ return JSON.parse(localStorage.getItem(PROFILE_KEY)
 function saveProfile(pr){ try{ localStorage.setItem(PROFILE_KEY,JSON.stringify(pr)); }catch(e){} }
 function defaultProfile(name,email,avatar){ return {name:name||'Player',email:email||null,avatar:avatar||null,googleUser:false,stats:{survival:{wins:0,losses:0},timeattack:{wins:0,losses:0},king:{wins:0,losses:0},potato:{wins:0,losses:0},tournament:{wins:0,losses:0}},created:Date.now()}; }
 let profile=loadProfile();
+if(profile){
+  profile.stats=profile.stats||{};
+  for(const mode of ['survival','timeattack','king','potato','tournament']){
+    profile.stats[mode]=profile.stats[mode]||{wins:0,losses:0};
+  }
+}
 
 // ── Email/Password Auth ──
 function loginWithEmail(email, password, onSuccess, onError){
+  if(!fbAuth){if(onError)onError('auth/unavailable');return;}
   fbAuth.signInWithEmailAndPassword(email, password).then(result=>{
     const user=result.user;
     if(!profile) profile=defaultProfile(user.displayName||email.split('@')[0], email, null);
@@ -759,6 +567,7 @@ function loginWithEmail(email, password, onSuccess, onError){
   }).catch(err=>{ if(onError) onError(err.code); });
 }
 function registerWithEmail(email, password, name, onSuccess, onError){
+  if(!fbAuth){if(onError)onError('auth/unavailable');return;}
   fbAuth.createUserWithEmailAndPassword(email, password).then(result=>{
     const user=result.user;
     user.updateProfile({displayName: name}).catch(()=>{});
@@ -771,6 +580,7 @@ function registerWithEmail(email, password, name, onSuccess, onError){
   }).catch(err=>{ if(onError) onError(err.code); });
 }
 function logoutGoogle(){
+  if(!fbAuth)return;
   fbAuth.signOut().then(()=>{
     if(profile){ profile.googleUser=false; profile.email=null; saveProfile(profile); }
     if(typeof updateProfileBtn==='function') updateProfileBtn();
@@ -1070,6 +880,7 @@ new p5(function(p){
         'auth/weak-password':'סיסמה חלשה מדי (6+ תווים)',
         'auth/too-many-requests':'יותר מדי ניסיונות, נסה מאוחר יותר',
         'auth/invalid-credential':'אימייל או סיסמה שגויים',
+        'auth/unavailable':'שירות ההתחברות אינו זמין כרגע',
       };
       return errs[code]||('שגיאה: '+code);
     }
@@ -1088,6 +899,8 @@ new p5(function(p){
         registerWithEmail(email,password,name,()=>hideEmailAuthPanel(),code=>{ errEl.textContent=getAuthError(code); });
       }
     });
+    document.getElementById('auth-tab-login').addEventListener('click', e=>{e.stopPropagation();switchAuthTab('login');});
+    document.getElementById('auth-tab-register').addEventListener('click', e=>{e.stopPropagation();switchAuthTab('register');});
     document.getElementById('auth-cancel-btn').addEventListener('click', e=>{ e.stopPropagation(); hideEmailAuthPanel(); });
     document.getElementById('auth-overlay').addEventListener('click', e=>{ e.stopPropagation(); hideEmailAuthPanel(); });
     document.getElementById('auth-panel').addEventListener('mousedown', e=>e.stopPropagation());
@@ -1247,38 +1060,23 @@ new p5(function(p){
       reader.onload=function(ev){
         const img=new Image();
         img.onload=function(){
-          // כווץ ל-64x64
+          // כיווץ מונע חריגה ממכסת localStorage ושומר על תצוגה מהירה.
           const canvas=document.createElement('canvas');
-          canvas.width=64;canvas.height=64;
+          canvas.width=128;canvas.height=128;
           const ctx2=canvas.getContext('2d');
-          ctx2.drawImage(img,0,0,64,64);
-          const data=canvas.toDataURL('image/jpeg',0.8);
+          ctx2.drawImage(img,0,0,128,128);
+          const data=canvas.toDataURL('image/jpeg',0.82);
           if(!profile) profile=defaultProfile('Player');
           profile.avatar=data;
           saveProfile(profile);
+          profileAvatarImg={canvas,width:canvas.width,height:canvas.height,_isCanvas:true};
+          updateProfileBtn();
+          renderProfilePanel();
         };
         img.src=ev.target.result;
       };
       reader.readAsDataURL(file);
       e.target.value=''; // אפס כדי שניתן לבחור שוב אותו קובץ
-    });
-
-    document.getElementById('avatar-input').addEventListener('change',function(e){
-      let file=e.target.files[0]; if(!file||!profile) return;
-      let reader=new FileReader();
-      reader.onload=function(ev){
-        profile.avatar=ev.target.result;
-        saveProfile(profile);
-        let img=new Image(); img.src=ev.target.result;
-        img.onload=()=>{
-          let canvas=document.createElement('canvas');
-          canvas.width=img.width; canvas.height=img.height;
-          canvas.getContext('2d').drawImage(img,0,0);
-          profileAvatarImg={canvas,width:img.width,height:img.height,_isCanvas:true};
-        };
-      };
-      reader.readAsDataURL(file);
-      e.target.value='';
     });
 
     document.getElementById('lang-btn').addEventListener('click',()=>{
@@ -2124,11 +1922,11 @@ new p5(function(p){
   p.keyPressed=function(){
     if(gameState===STATE.PROFILE) return false; // מטופל ב-document listener
     if(gameState===STATE.SPECTATING){
-      let btnW=160, btnH=28, gap=20;
-      let btn1X=W/2-btnW-gap/2, btn2X=W/2+gap/2, btnY=H-36;
-      if(p.mouseX>=btn1X&&p.mouseX<=btn1X+btnW&&p.mouseY>=btnY&&p.mouseY<=btnY+btnH) doStart(currentMode,p);
-      if(p.mouseX>=btn2X&&p.mouseX<=btn2X+btnW&&p.mouseY>=btnY&&p.mouseY<=btnY+btnH) gameState=STATE.MENU;
-      return;
+      if(currentMode!==STATE.TOURNAMENT){
+        if(p.keyCode===p.RETURN)doStart(currentMode,p);
+        if(p.keyCode===32)gameState=STATE.MENU;
+      }
+      return false;
     }
     if(gameState===STATE.MENU){
       let n=T('modes').length;
@@ -2168,11 +1966,6 @@ new p5(function(p){
       }
       if(p.keyCode===32&&!customTimeActive){gameState=STATE.MENU;customTimeInput='';customTimeActive=false;customTimeError='';}
       if(p.keyCode===27){customTimeActive=false;customTimeInput='';}
-    } else if(gameState===STATE.SPECTATING){
-      if(currentMode!==STATE.TOURNAMENT){
-        if(p.keyCode===p.RETURN)doStart(currentMode,p);
-        if(p.keyCode===32)gameState=STATE.MENU;
-      }
     } else if(gameState===STATE.GAMEOVER||gameState===STATE.WIN){
       if(p.keyCode===p.RETURN)doStart(currentMode,p); // אנטר = נסה שוב
       if(p.keyCode===32)gameState=STATE.MENU; // רווח = חזור לתפריט
@@ -2333,7 +2126,3 @@ new p5(function(p){
   }
 });
 
-
-</script>
-</body>
-</html>
